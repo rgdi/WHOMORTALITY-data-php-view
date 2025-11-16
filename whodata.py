@@ -7,13 +7,13 @@ import sys
 # --- 1. CONFIGURACIÓN ---
 
 DB_HOST = 'localhost'
-DB_USER = 'rgodczxw_WHO_Mortalidad'
-DB_PASS = '55o&N7vtRx=D'
-DB_NAME = 'rgodczxw_WHO_Mortalidad_DB'  # La base de datos que creaste
+DB_USER = ''
+DB_PASS = ''
+DB_NAME = ''  # La base de datos que creaste
 DB_PORT = 3306                 # Puerto de MariaDB/MySQL (default: 3306)
 
 # Carpeta donde tienes TODOS los archivos .csv listos
-CARPETA_CSV = '/home/rgodczxw/whomortalitydata'
+CARPETA_CSV = ''
 
 # Nombre de la tabla de destino para los datos de mortalidad
 TABLE_NAME_MORTALIDAD = 'Mortalidad'
