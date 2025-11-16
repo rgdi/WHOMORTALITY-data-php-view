@@ -1,0 +1,9 @@
+[09-Nov-2025 17:02:27 UTC] PHP Parse error:  syntax error, unexpected identifier "s", expecting "]" in /home/rgodczxw/data.rgodim.org/who-data/get_data.php on line 11
+[09-Nov-2025 17:02:29 UTC] PHP Parse error:  syntax error, unexpected identifier "s", expecting "]" in /home/rgodczxw/data.rgodim.org/who-data/get_data.php on line 11
+[09-Nov-2025 17:02:30 UTC] PHP Parse error:  syntax error, unexpected identifier "s", expecting "]" in /home/rgodczxw/data.rgodim.org/who-data/get_data.php on line 11
+[09-Nov-2025 17:02:30 UTC] PHP Parse error:  syntax error, unexpected identifier "s", expecting "]" in /home/rgodczxw/data.rgodim.org/who-data/get_data.php on line 11
+[09-Nov-2025 17:02:37 UTC] PHP Parse error:  syntax error, unexpected identifier "s", expecting "]" in /home/rgodczxw/data.rgodim.org/who-data/get_data.php on line 11
+[09-Nov-2025 18:26:20 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/rgodczxw/data.rgodim.org/who-data/get_causes.php:75) in /home/rgodczxw/data.rgodim.org/who-data/get_causes.php on line 88
+[09-Nov-2025 18:28:15 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/rgodczxw/data.rgodim.org/who-data/get_causes.php:75) in /home/rgodczxw/data.rgodim.org/who-data/get_causes.php on line 88
+[09-Nov-2025 18:32:44 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/rgodczxw/data.rgodim.org/who-data/get_causes.php:75) in /home/rgodczxw/data.rgodim.org/who-data/get_causes.php on line 88
+[09-Nov-2025 18:32:52 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/rgodczxw/data.rgodim.org/who-data/get_causes.php:75) in /home/rgodczxw/data.rgodim.org/who-data/get_causes.php on line 88

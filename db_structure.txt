@@ -1,0 +1,155 @@
+Archivo: Analisis_Estructura_DB.txt
+Base de Datos: rgodczxw_WHO_Mortalidad_DB
+Fecha de Análisis: 26/10/2025
+-------------------------------------------------
+
+Este documento resume la estructura de las tablas proporcionadas y añade comentarios sobre su propósito y posibles relaciones.
+
+-------------------------------------------------
+RESUMEN GENERAL DEL ESQUEMA
+-------------------------------------------------
+
+Esta base de datos parece almacenar datos de mortalidad y población de la OMS (WHO).
+
+* **Tablas de Hechos (Datos Principales):** `Mortalidad`, `Poblacion`, `uso_internet`.
+* **Tablas de Dimensiones (Tablas de Consulta/Catálogos):** `Paises`, `Estado_Desarrollo`, `who_mortality_age_ranges`, `who_mortality_causes`.
+
+**Relaciones Principales Identificadas:**
+
+1.  `Paises.Country_status_id` (FK) -> `Estado_Desarrollo.Codigo_Estado` (PK)
+2.  `Mortalidad.Country` (FK) -> `Paises.Codigo_Pais` (PK)
+3.  `Mortalidad.Cause` (FK) -> `who_mortality_causes.short_code` (PK probable)
+4.  `Poblacion.Pais_Codigo` (FK) -> `Paises.Codigo_Pais` (PK)
+5.  `uso_internet.Codigo_Pais` (FK) -> `Paises.Codigo_Pais` (PK)
+6.  Las columnas `Deaths1...26` (en `Mortalidad`) y `Pob1...26` (en `Poblacion`) se decodifican usando la tabla `who_mortality_age_ranges`.
+
+-------------------------------------------------
+ANÁLISIS DETALLADO POR TABLA
+-------------------------------------------------
+
+### 1. Tabla: Estado_Desarrollo
+
+**Estructura:**
+* `Codigo_Estado` (INT) - Clave Primaria (PK).
+* `Descripcion` (VARCHAR) - ej: "Ingreso alto", "Ingreso mediano alto".
+
+**Análisis y Comentarios:**
+* Es una tabla de dimensiones (catálogo) simple.
+* Define los tipos de estado de desarrollo de un país.
+* Se vincula con la tabla `Paises` a través de la columna `Country_status_id`.
+
+---
+
+### 2. Tabla: Paises
+
+**Estructura:**
+* `Codigo_Pais` (VARCHAR(4)) - Clave Primaria (PK) probable.
+* `Codigo_Pais_3` (VARCHAR(10)) - Probablemente el código de 3 letras (ej: "ESP").
+* `Nombre` (VARCHAR(255)) - Nombre del país.
+* `Country_status_id` (INT(11)) - Clave Foránea (FK) que apunta a `Estado_Desarrollo.Codigo_Estado`.
+
+**Análisis y Comentarios:**
+* Tabla de dimensiones que lista los países.
+* Es la tabla central para vincular todos los datos (mortalidad, población, internet) por país.
+
+---
+
+### 3. Tabla: who_mortality_age_ranges
+
+**Estructura:**
+* `column_code` (VARCHAR(10)) - Clave Primaria (PK). ej: "Deaths1", "Deaths2", "Pob1", etc.
+* `age_range` (VARCHAR(100)) - ej: "0-1 años", "1-4 años", "5-9 años".
+
+**Análisis y Comentarios:**
+* Tabla de dimensiones crucial.
+* Decodifica las columnas `Deaths1...26` y `Pob1...26` de las tablas `Mortalidad` y `Poblacion`.
+* Esto confirma que las tablas `Mortalidad` y `Poblacion` están **denormalizadas** (tienen columnas repetitivas en lugar de filas).
+
+---
+
+### 4. Tabla: who_mortality_causes
+
+**Estructura:**
+* `id` (BIGINT AUTO_INCREMENT) - Clave Primaria (PK).
+* `icd_revision` (VARCHAR(10)) - Versión del "International Classification of Diseases" (ej: "ICD-10").
+* `list_type` (VARCHAR(10))
+* `short_code` (VARCHAR(20)) - Código corto de la causa (ej: "A01").
+* `description` (TEXT) - Descripción de la causa (ej: "Cólera").
+* `detailed_codes` (VARCHAR(100))
+* `table_reference` (VARCHAR(50))
+
+**Análisis y Comentarios:**
+* Tabla de dimensiones para las causas de muerte.
+* La columna `Mortalidad.Cause` (VARCHAR(4)) probablemente se relaciona con `short_code` (aunque los tipos de datos no coinciden exactamente en longitud, `varchar(4)` cabe en `varchar(20)`).
+
+---
+
+### 5. Tabla: uso_internet
+
+**Estructura:**
+* `Codigo_Pais` (VARCHAR(4)) - Clave Foránea (FK) que apunta a `Paises.Codigo_Pais`.
+* `Pais_Nombre` (VARCHAR(255)) - Redundante, ya que se puede obtener de `Paises`.
+* `Indicator Name` (VARCHAR(255)) - ej: "Usuarios de Internet (% de población)".
+* `Indicator Code` (VARCHAR(50))
+* `Año` (VARCHAR(4)) - El año del dato.
+* `Valor %` (VARCHAR(50)) - El valor del porcentaje.
+
+**Análisis y Comentarios:**
+* Tabla de hechos que almacena el uso de internet.
+* **Problema:** `Año` está como `VARCHAR(4)` en lugar de `INT` o `YEAR`.
+* **Problema:** `Valor %` está como `VARCHAR(50)`. Esto es un error de diseño grave. Debería ser un tipo numérico (ej: `DECIMAL(5, 2)`) para poder realizar cálculos (promedios, sumas). Habrá que convertirlo en las consultas.
+
+---
+
+### 6. Tabla: Mortalidad
+
+**Estructura:**
+* `Country` (VARCHAR(4)) - FK a `Paises.Codigo_Pais`.
+* `Admin1` (VARCHAR(3)) - Nivel administrativo (ej: región).
+* `Subdiv` (VARCHAR(3)) - Subdivisión.
+* `Year` (VARCHAR(4)) - Año del dato.
+* `List` (VARCHAR(3)) - Referencia a la lista de causas.
+* `Cause` (VARCHAR(4)) - FK a `who_mortality_causes.short_code`.
+* `Sex` (CHAR(1)) - '1' (Hombres), '2' (Mujeres), '9' (Ambos/No especificado).
+* `Frmat` (VARCHAR(2))
+* `IM_Frmat` (VARCHAR(2))
+* `Deaths1` (INT(11))
+* `Deaths2` (INT(11))
+* ... (hasta `Deaths26`) ...
+* `Deaths26` (INT(11))
+* `IM_deaths1` (INT(11))
+* ... (hasta `IM_deaths4`) ...
+* `IM_deaths4` (INT(11))
+
+**Análisis y Comentarios:**
+* Es la tabla de hechos principal.
+* **Diseño Denormalizado:** Las columnas `Deaths1` a `Deaths26` representan las muertes por rangos de edad. Lo normalizado sería tener filas (una por rango de edad).
+* **Clave Compuesta:** La clave única de esta tabla es probablemente una combinación de (`Country`, `Year`, `Cause`, `Sex`, `Admin1`, `Subdiv`, `List`).
+* `Deaths1...26` se decodifican con `who_mortality_age_ranges`.
+* `IM_deaths1...4` son muertes infantiles, también decodificadas por `who_mortality_age_ranges`.
+* **Problema:** `Year` es `VARCHAR(4)`. Debería ser `INT` o `YEAR` para facilitar consultas por rango de fechas.
+
+---
+
+### 7. Tabla: Poblacion
+
+**Estructura:**
+* `Pais_Codigo` (VARCHAR(4)) - FK a `Paises.Codigo_Pais`.
+* `Admin1` (VARCHAR(3))
+* `Subdiv` (VARCHAR(3))
+* `Anio` (VARCHAR(4)) - Año del dato.
+* `Sexo` (VARCHAR(1)) - '1', '2', '9'.
+* `Frmat` (VARCHAR(2))
+* `Pob1` (BIGINT(20))
+* `Pob2` (BIGINT(20))
+* ... (hasta `Pob26`) ...
+* `Pob26` (BIGINT(20))
+* `Nacidos_Vivos` (BIGINT(20))
+
+**Análisis y Comentarios:**
+* Tabla de hechos para la población.
+* Su estructura es casi idéntica a `Mortalidad`.
+* Permite calcular las **tasas de mortalidad** (ej: `Mortalidad.Deaths5 / Poblacion.Pob5`).
+* `Pob1...26` son los conteos de población para los mismos rangos de edad que `Deaths1...26`.
+* `Nacidos_Vivos` es esencial para calcular la tasa de mortalidad infantil.
+* **Problema:** `Anio` es `VARCHAR(4)`.
